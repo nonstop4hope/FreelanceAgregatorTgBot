@@ -61,8 +61,9 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
             )
             context.bot.send_message(chat_id=user_id, text=message, disable_web_page_preview=True, parse_mode=ParseMode.HTML)
 
-    if query.data == 'stop_bot':
-        query.edit_message_text(text=f"Эта кнопка ничего не делает ☹️")
+    if query.data == 'categories':
+        reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
+        query.edit_message_reply_markup(reply_markup=reply_markup)
     if query.data == 'subscribe':
         if subscribe(mongod, user_id):
             username = query.from_user.username
@@ -71,6 +72,11 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
             query.edit_message_text(text=f"Спасибо за подписку! Добро пожаловать {username}!")
         else:
             query.edit_message_text(text=f"Произошло недопонимание, Вы уже подписаны на рассылку!")
+    if query.data == 'development':
+        reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
+        query.edit_message_text("Выбрана категория разработка", reply_markup=reply_markup)
+
+
 
 
 def help_command(update: Update, context: CallbackContext) -> None:

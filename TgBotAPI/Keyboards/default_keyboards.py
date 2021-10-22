@@ -8,9 +8,31 @@ class Keyboards:
         keyboard = [
             [
                 InlineKeyboardButton("Последние новости", callback_data='last_tasks'),
-                InlineKeyboardButton("Какая-то кнопка", callback_data='something'),
+                InlineKeyboardButton("Выбрать интересующие категории", callback_data='categories'),
             ],
             [InlineKeyboardButton("Подписаться на рассылку", callback_data='subscribe')],
+        ]
+        return keyboard
+
+    @staticmethod
+    def categories_menu():
+        keyboard = [
+            [
+                InlineKeyboardButton("Разработка", callback_data='development'),
+                InlineKeyboardButton("Тестирование", callback_data='testing'),
+            ],
+            [
+                InlineKeyboardButton("Администрирование", callback_data='administration'),
+                InlineKeyboardButton("Дизайн", callback_data='design'),
+            ],
+            [
+                InlineKeyboardButton("Контент", callback_data='content'),
+                InlineKeyboardButton("Маркетинг", callback_data='marketing'),
+            ],
+            [
+                InlineKeyboardButton("Разное", callback_data='various'),
+                InlineKeyboardButton("Назад", callback_data='get_back'),
+            ]
         ]
         return keyboard
 
