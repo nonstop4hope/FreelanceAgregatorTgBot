@@ -33,7 +33,14 @@ class Mongod(MongoClient):
         collection = self[Mongod.db_name][Mongod.tg_users_collection_name]
 
         json_to_db = {
-            '_id': user_data.id
+            '_id': user_data.id,
+            'development': user_data.development,
+            'testing': user_data.testing,
+            'administration': user_data.administration,
+            'design': user_data.design,
+            'content': user_data.content,
+            'marketing': user_data.marketing,
+            'various': user_data.various
         }
 
         if collection.find_one({'_id': user_data.id}):

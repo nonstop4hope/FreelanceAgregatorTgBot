@@ -31,7 +31,7 @@ class Keyboards:
             ],
             [
                 InlineKeyboardButton("Разное", callback_data='various'),
-                InlineKeyboardButton("Назад", callback_data='get_back'),
+                InlineKeyboardButton("Подтвердить", callback_data='save_change'),
             ]
         ]
         return keyboard

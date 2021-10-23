@@ -42,6 +42,8 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
     mongod = Mongod()
     user_id = query.from_user.id
 
+    categories_from_db = []
+
     if query.data == 'last_tasks':
         last_tasks = mongod.get_last_task(limit=5)
         query.edit_message_text(text=f"Последние новости для Вас, надеюсь они будут полезны")
@@ -59,11 +61,13 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
                 f'<b>╠Ссылка на задание:</b> {task["url"]}\n'
                 f'<b>╚Описание:</b> {description}\n'
             )
-            context.bot.send_message(chat_id=user_id, text=message, disable_web_page_preview=True, parse_mode=ParseMode.HTML)
+            context.bot.send_message(chat_id=user_id, text=message, disable_web_page_preview=True,
+                                     parse_mode=ParseMode.HTML)
 
     if query.data == 'categories':
         reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
-        query.edit_message_reply_markup(reply_markup=reply_markup)
+        query.edit_message_text(text=get_categories_text(categories_from_db), reply_markup=reply_markup,
+                                parse_mode=ParseMode.HTML)
     if query.data == 'subscribe':
         if subscribe(mongod, user_id):
             username = query.from_user.username
@@ -73,10 +77,46 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
         else:
             query.edit_message_text(text=f"Произошло недопонимание, Вы уже подписаны на рассылку!")
     if query.data == 'development':
-        reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
-        query.edit_message_text("Выбрана категория разработка", reply_markup=reply_markup)
+        get_categories_window('Разработка', categories_from_db, query)
+    if query.data == 'testing':
+        get_categories_window('Тестирование', categories_from_db, query)
+    if query.data == 'administration':
+        get_categories_window('Администрирование', categories_from_db, query)
+    if query.data == 'design':
+        get_categories_window('Дизайн', categories_from_db, query)
+    if query.data == 'content':
+        get_categories_window('Контент', categories_from_db, query)
+    if query.data == 'marketing':
+        get_categories_window('Маркетинг', categories_from_db, query)
+    if query.data == 'various':
+        get_categories_window('Разное', categories_from_db, query)
 
 
+
+
+def get_categories_window(category: str, categories_from_db: list, query):
+    categories_from_db.append(category)
+    reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
+    query.edit_message_text(text=get_categories_text(categories_from_db), reply_markup=reply_markup,
+                            parse_mode=ParseMode.HTML)
+
+
+def get_categories_text(categories_from_db):
+    text = (
+        f'Вы можете выбрать интересующие Вас категории для автоматической расслылки.\n'
+        f'Выбрать избранные категории могут только пользователи, подписанные на рассылку!\n\n'
+    )
+    if categories_from_db:
+        categories_from_db = ' '.join(categories_from_db)
+        categories_part = (
+            f'На данный момент в избранных категориях находятся: <b>{categories_from_db}</b>\n\n'
+        )
+    else:
+        categories_part = (
+            f'<b>На данный момент у Вас нет избранных категорий!</b>\n'
+        )
+    text = text + categories_part
+    return text
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
