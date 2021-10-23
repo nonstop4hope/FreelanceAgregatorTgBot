@@ -14,6 +14,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+category_list = ('development', 'testing', 'administration', 'design', 'marketing', 'various', 'content')
+
 
 def start(update: Update, context: CallbackContext) -> None:
 
@@ -37,12 +39,13 @@ def subscribe(mongod, user_id: int):
 
 
 def callback_start_menu(update: Update, context: CallbackContext) -> None:
+    global category_list
     query = update.callback_query
     query.answer()
     mongod = Mongod()
     user_id = query.from_user.id
 
-    categories_from_db = []
+    categories_from_db = mongod.get_current_state(user_id)
 
     if query.data == 'last_tasks':
         last_tasks = mongod.get_last_task(limit=5)
@@ -65,9 +68,12 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
                                      parse_mode=ParseMode.HTML)
 
     if query.data == 'categories':
-        reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
-        query.edit_message_text(text=get_categories_text(categories_from_db), reply_markup=reply_markup,
-                                parse_mode=ParseMode.HTML)
+        if mongod.check_existing(user_id):
+            reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
+            query.edit_message_text(text=get_categories_text(categories_from_db), reply_markup=reply_markup,
+                                    parse_mode=ParseMode.HTML)
+        else:
+            query.edit_message_text(text=f"Выбор категорий доступен только пользователям, подписанным на рассылку")
     if query.data == 'subscribe':
         if subscribe(mongod, user_id):
             username = query.from_user.username
@@ -76,26 +82,15 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
             query.edit_message_text(text=f"Спасибо за подписку! Добро пожаловать {username}!")
         else:
             query.edit_message_text(text=f"Произошло недопонимание, Вы уже подписаны на рассылку!")
-    if query.data == 'development':
-        get_categories_window('Разработка', categories_from_db, query)
-    if query.data == 'testing':
-        get_categories_window('Тестирование', categories_from_db, query)
-    if query.data == 'administration':
-        get_categories_window('Администрирование', categories_from_db, query)
-    if query.data == 'design':
-        get_categories_window('Дизайн', categories_from_db, query)
-    if query.data == 'content':
-        get_categories_window('Контент', categories_from_db, query)
-    if query.data == 'marketing':
-        get_categories_window('Маркетинг', categories_from_db, query)
-    if query.data == 'various':
-        get_categories_window('Разное', categories_from_db, query)
+    if query.data in category_list:
+        mongod.update_state(user_id, query.data)
+        get_categories_window(mongod, user_id, query)
+    if query.data == 'save_change':
+        query.edit_message_text(text=f"Спасибо за выбор категорий!")
 
 
-
-
-def get_categories_window(category: str, categories_from_db: list, query):
-    categories_from_db.append(category)
+def get_categories_window(mongod, user_id, query):
+    categories_from_db = mongod.get_current_state(user_id)
     reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
     query.edit_message_text(text=get_categories_text(categories_from_db), reply_markup=reply_markup,
                             parse_mode=ParseMode.HTML)
