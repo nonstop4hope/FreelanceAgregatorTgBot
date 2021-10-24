@@ -53,6 +53,10 @@ class Mongod(MongoClient):
         else:
             return collection.insert_one(json_to_db)
 
+    def delete_user(self, user_id) -> None:
+        collection = self[Mongod.db_name][Mongod.tg_users_collection_name]
+        collection.delete_one({'_id': user_id})
+
     def get_current_state(self, user_id):
         collection = self[Mongod.db_name][Mongod.tg_users_collection_name]
         current_state = collection.find_one({'_id': user_id})

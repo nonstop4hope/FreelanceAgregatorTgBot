@@ -4,14 +4,23 @@ from telegram import InlineKeyboardButton
 class Keyboards:
 
     @staticmethod
-    def start_menu():
-        keyboard = [
-            [
-                InlineKeyboardButton("Последние новости", callback_data='last_tasks'),
-                InlineKeyboardButton("Выбрать интересующие категории", callback_data='categories'),
-            ],
-            [InlineKeyboardButton("Подписаться на рассылку", callback_data='subscribe')],
-        ]
+    def start_menu(subscribe):
+        if subscribe:
+            keyboard = [
+                [
+                    InlineKeyboardButton("Последние новости", callback_data='last_tasks'),
+                    InlineKeyboardButton("Выбрать интересующие категории", callback_data='categories'),
+                ],
+                [InlineKeyboardButton("Подписаться на рассылку", callback_data='subscribe')],
+            ]
+        else:
+            keyboard = [
+                [
+                    InlineKeyboardButton("Последние новости", callback_data='last_tasks'),
+                    InlineKeyboardButton("Выбрать интересующие категории", callback_data='categories'),
+                ],
+                [InlineKeyboardButton("Отписаться от рассылки", callback_data='unsubscribe')],
+            ]
         return keyboard
 
     @staticmethod

@@ -18,13 +18,20 @@ category_list = ('development', 'testing', 'administration', 'design', 'marketin
 
 
 def start(update: Update, context: CallbackContext) -> None:
+    user_id = update.message.from_user.id
+    if Mongod().check_existing(user_id):
+        subscribed = False
+    else:
+        subscribed = True
 
-    reply_markup = InlineKeyboardMarkup(Keyboards.start_menu())
+    reply_markup = InlineKeyboardMarkup(Keyboards.start_menu(subscribed))
 
     update.message.reply_text('Добро пожаловать!\nЭтот бот поможет Вам всегда оставаться в курсе событий.\n'
                               'Для продолжения работы выберите один из пунктов меню. При выборе пункта "Подписаться'
                               'на рассылку" бот в автоматическом режиме будет присылать Вам информацию с habr.com',
                               reply_markup=reply_markup)
+
+    logger.info(f'User "{user_id}" called the start menu')
 
 
 def subscribe(mongod, user_id: int):
@@ -66,7 +73,7 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
             )
             context.bot.send_message(chat_id=user_id, text=message, disable_web_page_preview=True,
                                      parse_mode=ParseMode.HTML)
-
+        logger.info(f'User "{user_id}" has received the latest tasks')
     if query.data == 'categories':
         if mongod.check_existing(user_id):
             reply_markup = InlineKeyboardMarkup(Keyboards.categories_menu())
@@ -74,6 +81,11 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
                                     parse_mode=ParseMode.HTML)
         else:
             query.edit_message_text(text=f"Выбор категорий доступен только пользователям, подписанным на рассылку")
+        logger.info(f'User "{user_id}" went to the categories menu')
+    if query.data == 'unsubscribe':
+        mongod.delete_user(user_id)
+        query.edit_message_text(text=f"Нам было хорошо вместе! Пока! 😢")
+        logger.info(f'User "{user_id}" has unsubscribed')
     if query.data == 'subscribe':
         if subscribe(mongod, user_id):
             username = query.from_user.username
@@ -82,11 +94,14 @@ def callback_start_menu(update: Update, context: CallbackContext) -> None:
             query.edit_message_text(text=f"Спасибо за подписку! Добро пожаловать {username}!")
         else:
             query.edit_message_text(text=f"Произошло недопонимание, Вы уже подписаны на рассылку!")
+        logger.info(f'User "{user_id}" subscribed')
     if query.data in category_list:
         mongod.update_state(user_id, query.data)
         get_categories_window(mongod, user_id, query)
+        logger.info(f'User "{user_id}" has selected a category "{query.data}"')
     if query.data == 'save_change':
         query.edit_message_text(text=f"Спасибо за выбор категорий!")
+        logger.info(f'User "{user_id}" has finished selecting categories')
 
 
 def get_categories_window(mongod, user_id, query):
