@@ -27,20 +27,20 @@ class Keyboards:
     def categories_menu():
         keyboard = [
             [
-                InlineKeyboardButton("Разработка", callback_data='development'),
-                InlineKeyboardButton("Тестирование", callback_data='testing'),
+                InlineKeyboardButton("👨‍💻 Разработка", callback_data='development'),
+                InlineKeyboardButton("⚙️ Тестирование", callback_data='testing'),
             ],
             [
-                InlineKeyboardButton("Администрирование", callback_data='administration'),
-                InlineKeyboardButton("Дизайн", callback_data='design'),
+                InlineKeyboardButton("🌐 Администрирование", callback_data='administration'),
+                InlineKeyboardButton("🧑‍🎨 Дизайн", callback_data='design'),
             ],
             [
-                InlineKeyboardButton("Контент", callback_data='content'),
-                InlineKeyboardButton("Маркетинг", callback_data='marketing'),
+                InlineKeyboardButton("⌨️ Контент", callback_data='content'),
+                InlineKeyboardButton("💶 Маркетинг", callback_data='marketing'),
             ],
             [
-                InlineKeyboardButton("Разное", callback_data='various'),
-                InlineKeyboardButton("Подтвердить", callback_data='save_change'),
+                InlineKeyboardButton("🧠 Разное", callback_data='various'),
+                InlineKeyboardButton("✅ Подтвердить", callback_data='save_change'),
             ]
         ]
         return keyboard
